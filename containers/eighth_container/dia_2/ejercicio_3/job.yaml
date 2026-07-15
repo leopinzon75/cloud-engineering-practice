@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: batch-telemetria-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: procesador-telemetria
+        image: batch-telemetria:v1
+        # IMPORTANTE: Como la imagen está en tu Docker local, le decimos a K8s que no intente buscarla en el internet (Docker Hub)
+        imagePullPolicy: Never
+      
+      # Regla de oro en K8s para procesos Batch: Si el contenedor termina con éxito, no lo reinicies.
+      restartPolicy: Never
+  
+  # Si por alguna razón el script falla (exit 1), K8s reintentará la tarea máximo 3 veces antes de darse por vencido.
+  backoffLimit: 3

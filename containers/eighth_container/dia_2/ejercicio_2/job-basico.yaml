@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: batch-job-inicial
+spec:
+  template:
+    spec:
+      containers:
+      - name: python-worker
+        image: batch-app:v1
+        imagePullPolicy: Never # Le dice a K8s que use la imagen local que acabamos de construir con Docker
+        command: ["python", "app.py"] # En un Job real, aquí ejecutarías tu script de extracción o procesamiento de datos
+        env:
+        - name: ENV_ROLE
+          value: "Batch-Job-Testing"
+      restartPolicy: Never # Los Jobs de tipo Batch NO deben reiniciarse infinitamente si fallan
+  backoffLimit: 2 # Número de reintentos antes de marcar el Job como fallido

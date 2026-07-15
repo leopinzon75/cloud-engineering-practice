@@ -1,0 +1,8 @@
+/* Fuerza el diseño de los subtítulos dentro del reproductor de YouTube */
+.ytp-caption-segment {
+    color: #FFFF00 !important;              /* Texto Amarillo Intenso */
+    background-color: #000000 !important;    /* Fondo Negro Sólido */
+    font-weight: bold !important;            /* Letras gruesas / Negrita */
+    text-shadow: 2px 2px 4px #000000 !important; /* Sombra negra para dar relieve */
+    opacity: 1 !important;                   /* Cero transparencias molestas */
+}

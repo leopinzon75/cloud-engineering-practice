@@ -1,0 +1,2 @@
+boto3==1.34.0
+moto[mock_aws]==5.0.0

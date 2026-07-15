@@ -1,0 +1,8 @@
+==================================================
+REPORTE CONSOLIDADO DE REVISIÓN DE FLOTA - 2026-06-18 07:44:14.482842
+==================================================
+
+[ALERTA] Unidad: TRUCK-01 | Código: P0300 | Status: Critico
+[ALERTA] Unidad: TRUCK-02 | Código: P0171 | Status: Revision
+
+[RESUMEN] Procesamiento completado. Unidades críticas: 2

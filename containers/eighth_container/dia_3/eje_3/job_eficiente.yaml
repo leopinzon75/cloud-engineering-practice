@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-eficiente-batch
+  labels:
+    component: architect-python-batch
+    layer: exercise-4
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        component: architect-python-batch
+        layer: exercise-4
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: python-worker
+        image: python:3.10-slim
+        command: ["python", "/app/procesador.py"]
+        env:
+        - name: APP_ENV
+          value: "Produccion-Costos-Bajos"
+          
+        # EL NUEVO BRAZO DE RESTRICCIÓN EN LA X:
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"  # 100 milliCPUs = 10% de 1 CPU
+          limits:
+            memory: "128Mi"
+            cpu: "200m"  # 200 milliCPUs = 20% de 1 CPU
+            
+        volumeMounts:
+        - name: espacio-codigo
+          mountPath: /app
+      volumes:
+      - name: espacio-codigo
+        configMap:
+          name: procesador-config

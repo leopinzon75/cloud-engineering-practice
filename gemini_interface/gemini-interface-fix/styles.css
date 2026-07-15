@@ -1,0 +1,14 @@
+/* Fuerza a que los bloques de código y áreas de control no se oculten por error */
+.code-block, 
+message-content, 
+[role="region"] {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Si el botón se vuelve invisible por opacidad o transiciones congeladas */
+button:has(span), 
+button[disabled] {
+    opacity: 1 !important;
+}

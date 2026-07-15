@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: batch-cronjob-interactivo
+spec:
+  # Sintaxis Cron: (Minuto) (Hora) (Día del Mes) (Mes) (Día de la Semana)
+  # '* * * * *' significa: Ejecutar CADA MINUTO de cada día.
+  schedule: "* * * * *"
+  
+  # Si una tarea se retrasa, evita que se ejecuten múltiples instancias en paralelo
+  concurrencyPolicy: Forbid
+  
+  # Cuántos Jobs completados y fallidos queremos guardar en el historial para ver logs
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 2
+  
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: python-worker
+            image: batch-app:v1
+            imagePullPolicy: Never  # Sigue usando tu imagen local compilada
+            command: ["python", "app.py"]
+            env:
+            - name: ENV_ROLE
+              value: "Batch-CronJob-Automation"
+          restartPolicy: Never
+      backoffLimit: 2

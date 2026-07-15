@@ -1,0 +1,18 @@
+# Entornos virtuales de Python (lo más pesado)
+*env/
+venv/
+.venv/
+env/
+pandas_env/
+
+# Archivos temporales de Jupyter y Python
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+
+# Archivos del sistema operativo
+.DS_Store
+
+# Bloquear binarios pesados de Terraform
+.terraform/
+**/.terraform/

@@ -1,0 +1,30 @@
+
+
+version: '3.8'
+
+services:
+  # El orquestador de tareas
+  ofelia:
+    image: mcuadros/ofelia:latest
+    container_name: ofelia_scheduler
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "ofelia.job-local.my-pipeline-job.schedule=@every 1m"
+      - "ofelia.job-local.my-pipeline-job.container=fleet_data_pipeline"
+
+  # Nuestro contenedor de procesamiento de datos
+  data_pipeline:
+    build: .
+    container_name: fleet_data_pipeline
+    environment:
+      - SIMULACION=False
+      - AWS_INPUT_BUCKET=fleet-raw-data
+      - AWS_INPUT_KEY=raw_telemetry.csv
+      - AZURE_OUTPUT_CONTAINER=fleet-clean-alerts
+    volumes:
+      # Sincroniza las carpetas de datos del contenedor con tu máquina física
+      - ./data:/app/data
+    # Evita que el contenedor muera de inmediato al terminar, permitiendo que Ofelia lo despierte
+    stdin_open: true
+    tty: true
