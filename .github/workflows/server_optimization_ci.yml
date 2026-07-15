@@ -14,14 +14,14 @@ jobs:
     - name: Descargar código
       uses: actions/checkout@v4
 
-    # 1. Validación de Sintaxis de Servidor (Alta Optimización)
+    # 1. INTEGRACIÓN CONTINUA (CI): Validación de Sintaxis
     - name: Instalar Lua y dependencias
       run: |
         sudo apt-get update
         sudo apt-get install -y lua5.1 luarocks nginx
         sudo luarocks install luacheck || true
 
-    # Tarjetas de validación preliminar
+    # Validaciones preliminares de tus archivos afinados
     - name: Validar archivos Lua y Nginx
       run: |
         echo "=== Validando sintaxis ==="
@@ -32,15 +32,22 @@ jobs:
           nginx -t -c $GITHUB_WORKSPACE/optimizacion_de_servidor/Alta_optimizacion/conf/nginx.conf || echo "Validación de Nginx completada."
         fi
 
-    # 2. Login Seguro en Docker Hub usando los Secrets de GitHub
+    # 2. AUTENTICACIÓN: Login Seguro en Docker Hub
     - name: Iniciar Sesión de forma Segura en Docker Hub
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    # 3. Construcción y empaquetado del API Gateway
-    - name: Construir y Empujar Imagen del API Gateway a Docker Hub
+    # 3. DESPLIEGUE CONTINUO (CD): Construcción y Push Real
+    - name: Construir y Empujar Imagen Real del API Gateway a Docker Hub
       run: |
-        echo "=== Construyendo imagen de Docker ==="
-        echo "Simulación de empaquetado de API Gateway completada exitosamente."
+        echo "=== Iniciando construcción de la imagen Docker ==="
+        # Compila el Dockerfile usando el usuario de tus secrets como nombre de repositorio
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/api-gateway:latest .
+        
+        echo "=== Subiendo imagen a Docker Hub ==="
+        # Sube el contenedor listo a tu perfil de Docker Hub
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/api-gateway:latest
+        
+        echo "=== ¡Despliegue de imagen completado con éxito! ==="
