@@ -21,11 +21,10 @@ jobs:
         sudo apt-get install -y lua5.1 luarocks nginx
         sudo luarocks install luacheck || true
 
-     Tarjetas de validación preliminar
+    # Tarjetas de validación preliminar
     - name: Validar archivos Lua y Nginx
       run: |
         echo "=== Validando sintaxis ==="
-        # Verifica si existen antes de ejecutar para evitar fallos si la carpeta varía
         if [ -d "optimizacion_de_servidor/Alta_optimizacion/lua" ]; then
           luacheck optimizacion_de_servidor/Alta_optimizacion/lua/ || echo "Advertencias de linter Lua revisadas."
         fi
@@ -44,7 +43,4 @@ jobs:
     - name: Construir y Empujar Imagen del API Gateway a Docker Hub
       run: |
         echo "=== Construyendo imagen de Docker ==="
-        # Aquí puedes agregar tu comando docker build si tienes un Dockerfile listo, por ejemplo:
-        # docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/api-gateway:latest .
-        # docker push ${{ secrets.DOCKERHUB_USERNAME }}/api-gateway:latest
         echo "Simulación de empaquetado de API Gateway completada exitosamente."
