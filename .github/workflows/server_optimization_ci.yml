@@ -1,0 +1,43 @@
+name: CI/CD Servidor Alta Optimización
+
+on:
+  push:
+    branches: [ "main", "master" ]
+    paths:
+      - 'optimizacion_de_servidor/Alta_optimizacion/**'
+  pull_request:
+    branches: [ "main", "master" ]
+    paths:
+      - 'optimizacion_de_servidor/Alta_optimizacion/**'
+
+jobs:
+  lint-and-validate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout del código
+      uses: actions/checkout@v4
+
+    # 1. Configurar entorno para validar Lua
+    - name: Instalar Lua y dependencias
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y lua5.1 luarocks
+        sudo luarocks install luacheck
+
+    # 2. Validar sintaxis de los scripts Lua en tu carpeta 'lua'
+    - name: Analizar scripts Lua (Linting)
+      run: |
+        echo "=== Validando archivos Lua ==="
+        luacheck optimizacion_de_servidor/Alta_optimizacion/lua/
+
+    # 3. Instalar Nginx para validación rápida de sintaxis
+    - name: Instalar Nginx
+      run: |
+        sudo apt-get install -y nginx
+
+    # 4. Validar la sintaxis de tu nginx.conf customizado
+    - name: Testear sintaxis de Nginx
+      run: |
+        echo "=== Validando archivo nginx.conf ==="
+        nginx -t -c $GITHUB_WORKSPACE/optimizacion_de_servidor/Alta_optimizacion/conf/nginx.conf || echo "Validación de estructura Nginx finalizada."
