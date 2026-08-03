@@ -1,4 +1,4 @@
-# v3.1 - CI/CD Pipeline for next_5/ver_cinco
+# v3.3 - CI/CD Pipeline for next_5/ver_cinco (Batch Processor)
 name: CI/CD Pipeline - Batch Processor App
 
 on:
