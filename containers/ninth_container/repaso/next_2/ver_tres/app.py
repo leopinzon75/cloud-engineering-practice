@@ -4,8 +4,9 @@ import boto3
 from botocore.exceptions import ClientError
 
 app = Flask(__name__)
-S3_ENDPOINT = os.getenv("S3_ENDPOINT", "http://host.docker.internal:9000")
-# S3_ENDPOINT = os.getenv("S3_ENDPOINT", "http://localhost:9000")
+
+# Fallback inteligente: En Compose usará 'http://minio:9000', localmente 'http://localhost:9000'
+S3_ENDPOINT = os.getenv("S3_ENDPOINT", "http://localhost:9000")
 AWS_KEY = os.getenv("AWS_ACCESS_KEY_ID", "minio_admin")
 AWS_SECRET = os.getenv("AWS_SECRET_ACCESS_KEY", "minio_password")
 BUCKET_NAME = "vehicle-diagnostic-vault"
@@ -31,6 +32,15 @@ def ensure_bucket_exists():
 def home():
     return "🌐 Cloud-Connected Diagnostic Portal Active"
 
+@app.route("/health")
+def health():
+    """Endpoint de Healthcheck para Docker o Kubernetes"""
+    try:
+        s3.list_buckets()
+        return {"status": "healthy", "s3_connection": "ok"}, 200
+    except Exception as e:
+        return {"status": "unhealthy", "error": str(e)}, 503
+
 @app.route("/seed")
 def seed_data():
     ensure_bucket_exists()
@@ -48,11 +58,15 @@ def diagnostics():
         ensure_bucket_exists()
         response = s3.get_object(Bucket=BUCKET_NAME, Key="live_fault_code.txt")
         cloud_data = response["Body"].read().decode("utf-8")
-        return f"📊 Data Retrieved From Cloud Bucket:{cloud_data}"
-    except s3.exceptions.NoSuchKey:
-        return "⚠️ No diagnostic data found yet. Visit /seed first or upload a file to MinIO.", 404
+        return f"📊 Data Retrieved From Cloud Bucket: {cloud_data}"
+    except ClientError as e:
+        # Manejo robusto e idiomático de S3 ClientError
+        error_code = e.response.get("Error", {}).get("Code")
+        if error_code == "NoSuchKey":
+            return "⚠️ No diagnostic data found yet. Visit /seed first or upload a file to MinIO.", 404
+        return f"❌ S3 Client Error: {str(e)}", 500
     except Exception as e:
-        return f"❌ Error connecting to cloud storage:{str(e)}", 500
+        return f"❌ Unexpected Error connecting to cloud storage: {str(e)}", 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

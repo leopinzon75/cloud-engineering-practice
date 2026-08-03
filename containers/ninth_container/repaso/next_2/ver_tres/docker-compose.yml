@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: diagnostic-app-ver-tres
+    ports:
+      - "5000:5000"
+    environment:
+      - S3_ENDPOINT=http://minio:9000
+      - AWS_ACCESS_KEY_ID=minio_admin
+      - AWS_SECRET_ACCESS_KEY=minio_password
+    depends_on:
+      - minio
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio-ver-tres
+    ports:
+      - "9000:9000"
+      - "9005:9001" # Consola Web mapeada al 9005 para evitar colisiones
+    environment:
+      - MINIO_ROOT_USER=minio_admin
+      - MINIO_ROOT_PASSWORD=minio_password
+    command: server /data --console-address ":9001"
