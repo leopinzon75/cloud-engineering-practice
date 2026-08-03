@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-validador-batch
+  labels:
+    component: architect-python-batch
+    layer: exercise-2
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        component: architect-python-batch
+        layer: exercise-2
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: python-worker
+        image: python:3.10-slim
+        # Le decimos al contenedor que ejecute el archivo que va a aparecer mágicamente en /app
+        command: ["python", "/app/validador.py"]
+        
+        env:
+        - name: APP_ENV
+          value: "Produccion-Simulada"
+          
+        volumeMounts:
+        # Montaje 1: La tarjeta con nuestro código de Python
+        - name: espacio-codigo
+          mountPath: /app
+        # Montaje 2: La carpeta temporal donde el script escribirá el reporte
+        - name: espacio-datos
+          mountPath: /data
+          
+      volumes:
+      # Definimos el volumen que apunta al ConfigMap (la tarjeta)
+      - name: espacio-codigo
+        configMap:
+          name: validador-script-config
+      # Definimos el volumen temporal para los datos de salida
+      - name: espacio-datos
+        emptyDir: {}

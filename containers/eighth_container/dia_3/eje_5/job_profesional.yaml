@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-almacenamiento-profesional
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: python-worker
+        image: python:3.10-slim
+        command: ["python", "/app/reporte.py"]
+        env:
+        - name: APP_ENV
+          value: "Entorno-Arquitectura-Desacoplada"
+        volumeMounts:
+        # 1. Montamos el código del script (ConfigMap)
+        - name: espacio-codigo
+          mountPath: /app
+        # 2. Conectamos la manguera virtual para que Python guarde los datos
+        - name: carpeta-salida-profesional
+          mountPath: /app/datos_reporte
+      volumes:
+      # Origen 1: El código limpio
+      - name: espacio-codigo
+        configMap:
+          name: procesador-config
+      # Origen 2: ¡La manguera de acople rápido (PVC)! No usamos hostPath aquí.
+      - name: carpeta-salida-profesional
+        persistentVolumeClaim:
+          claimName: claim-herramienta-python # <-- Apuntamos directamente al Claim

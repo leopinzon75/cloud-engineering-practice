@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: python-batch-job
+  labels:
+    component: architect-python-batch
+    layer: exercise-1
+spec:
+  # Límite de reintentos antes de marcar el Job como fallido por completo
+  backoffLimit: 2
+  
+  template:
+    metadata:
+      # IMPORTANTE: Aquí se heredan las etiquetas para el monitoreo
+      labels:
+        component: architect-python-batch
+        layer: exercise-1
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: python-worker
+        image: python:3.10-slim
+        command: ["python", "/app/app.py"]
+        env:
+        - name: BATCH_NAME
+          value: "Lote-Prueba-Falla"
+        - name: TOTAL_ITEMS
+          value: "5"
+        - name: SIMULAR_ERROR
+          value: "True"
+        volumeMounts:
+        - name: script-volume
+          mountPath: /app
+      volumes:
+      - name: script-volume
+        configMap:
+          name: python-script-config

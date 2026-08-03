@@ -1,0 +1,21 @@
+# Notebooks de Jupyter
+*.ipynb
+.ipynb_checkpoints/
+
+# Entornos virtuales y Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Ignorar archivos de salida/entrada locales en data/archive/
+data/archive/input/*
+data/archive/output/*
+
+# Proteger los .gitkeep para conservar la estructura de carpetas
+!data/archive/input/.gitkeep
+!data/archive/output/.gitkeep
+
+# Logs y bases de datos temporales
+*.log
+.minio.sys/

@@ -1,0 +1,6 @@
+flask
+boto3
+python-dotenv
+pytest
+moto
+ 

@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-pathlib-batch
+  labels:
+    component: architect-python-batch
+    layer: exercise-3
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        component: architect-python-batch
+        layer: exercise-3
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: python-worker
+        image: python:3.10-slim
+        # Ejecutamos el script que tiene pathlib
+        command: ["python", "/app/validador_local.py"]
+        env:
+        - name: APP_ENV
+          value: "Validacion-Con-Pathlib"
+        volumeMounts:
+        - name: espacio-codigo
+          mountPath: /app
+        - name: espacio-datos
+          # Montamos el volumen en la ruta exacta que el script va a buscar
+          mountPath: /app/datos_locales
+      volumes:
+      - name: espacio-codigo
+        configMap:
+          name: validador-local-config
+      - name: espacio-datos
+        emptyDir: {}

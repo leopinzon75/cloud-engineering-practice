@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastapi-service   # El nombre oficial de tu conmutador de red
+spec:
+  type: NodePort          # Expone el puerto hacia afuera de tu computadora local
+  selector:
+    app: mi-api           # <-- Crucial: El radar que amarra este servicio a tus 3 réplicas
+  ports:
+    - protocol: TCP
+      port: 80            # El puerto por donde se hablará dentro del clúster
+      targetPort: 8000    # El puerto interno de tu contenedor (donde corre Uvicorn)
+      nodePort: 30080     # El puerto fijo de tu computadora (entre 30000 y 32767) para entrar desde el navegador

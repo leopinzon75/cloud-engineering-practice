@@ -1,0 +1,2 @@
+Reporte de salud para: Desarrollo-Local
+Estado: Carpeta física creada y mapeada con éxito.

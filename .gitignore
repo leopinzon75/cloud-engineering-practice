@@ -1,0 +1,14 @@
+# Gitignore principal
+.venv/
+env/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.log
+*.sqlite3
+
+# Notebooks con datos sensibles
+**/ve_cinco.ipynb
+**/*.ipynb_checkpoints/
+.env
+*.env

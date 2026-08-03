@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-almacenamiento-batch
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: python-worker
+        image: python:3.10-slim
+        command: ["python", "/app/reporte.py"]
+        env:
+        - name: APP_ENV
+          value: "Produccion-Almacenamiento-Fijo"
+        volumeMounts:
+        # Pestaña 1: Montamos el código (lo que ya sabes hacer)
+        - name: espacio-codigo
+          mountPath: /app
+        # Pestaña 2: ¡El nuevo puente de salida!
+        - name: disco-local-computadora
+          mountPath: /app/datos_reporte # <-- La carpeta que Python busca
+      volumes:
+      # Origen 1: El código del ConfigMap
+      - name: espacio-codigo
+        configMap:
+          name: procesador-config
+      # Origen 2: Carpeta física real en tu computadora
+      - name: disco-local-computadora
+        hostPath:
+          path: /run/desktop/mnt/host/wsl/datos_locales # Estándar de Docker Desktop para mapear tu disco
+          type: DirectoryOrCreate # <-- Si la carpeta no existe, Kubernetes la crea físicamente

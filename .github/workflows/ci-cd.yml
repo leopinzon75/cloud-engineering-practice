@@ -1,0 +1,67 @@
+# v3.1 - CI/CD Pipeline for next_5/ver_cinco
+name: CI/CD Pipeline - Batch Processor App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        working-directory: containers/ninth_container/repaso/next_5/ver_cinco
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+
+      - name: Run Pytest
+        working-directory: containers/ninth_container/repaso/next_5/ver_cinco
+        run: |
+          python -m pytest test_app.py -v
+
+  build-and-run:
+    name: Build Docker and Run Batch
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Create .env File for CI
+        run: |
+          echo "BATCH_NAME=Lote-Resiliente-CI" >> containers/ninth_container/repaso/next_5/ver_cinco/.env
+          echo "TOTAL_ITEMS=3" >> containers/ninth_container/repaso/next_5/ver_cinco/.env
+          echo "SIMULAR_ERROR=False" >> containers/ninth_container/repaso/next_5/ver_cinco/.env
+
+      - name: Build & Run Batch Service
+        working-directory: containers/ninth_container/repaso/next_5/ver_cinco
+        run: |
+          docker compose up --build --exit-code-from batch-processor
+
+      - name: Shutdown Containers
+        if: always()
+        working-directory: containers/ninth_container/repaso/next_5/ver_cinco
+        run: |
+          docker compose down

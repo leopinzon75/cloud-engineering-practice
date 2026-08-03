@@ -1,0 +1,2 @@
+# Dependencias del proyecto del cliente (Fase 3)
+# Por ahora usamos librerías nativas, dejamos el archivo listo para la Fase 4

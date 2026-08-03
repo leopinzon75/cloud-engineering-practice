@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Subtítulos Clásicos de YouTube",
+  "version": "1.0",
+  "description": "Restaurar colores y estilos antiguos del Closed Caption.",
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "css": ["estilos.css"]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+# Entornos virtuales y Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Notebooks y checkpoints
+*.ipynb
+.ipynb_checkpoints/
+
+# Archivos de entorno y secretos
+.env
+.env.*
+
+# Cobertura de tests y cache de pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs y bases de datos temporales
+*.log
+.minio.sys/
+
+# Ignorar archivos temporales de entrada/salida en data/archive/
+data/archive/input/*
+data/archive/output/*
+
+# Conservar la estructura de carpetas
+!data/archive/input/.gitkeep
+!data/archive/output/.gitkeep

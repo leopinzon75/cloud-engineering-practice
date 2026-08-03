@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  # El Motor: Tu contenedor del pipeline multicloud
+  fleet-worker:
+    build: .
+    image: fleet-multicloud-worker:local
+    container_name: fleet_batch_worker_instance
+    environment:
+      - SIMULACION=False
+      - AWS_INPUT_BUCKET=dev-fleet-raw-data
+      - AWS_INPUT_KEY=daily_telemetry.csv
+      - AZURE_OUTPUT_CONTAINER=dev-fleet-alerts
+      - AWS_ACCESS_KEY_ID=mock_key_para_pruebas_locales
+      - AWS_SECRET_ACCESS_KEY=mock_secret_para_pruebas_locales
+    volumes:
+      - ./data:/app/data
+
+  # El Reloj (Orquestador Local): Simula a AWS EventBridge / GCP Scheduler
+  scheduler:
+    image: mcuadros/ofelia:latest
+    container_name: local_cloud_scheduler
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: daemon --docker
+    labels:
+      ofelia.job-run.fleet-batch-trigger.schedule: "*/1 * * * *"
+      ofelia.job-run.fleet-batch-trigger.container: "fleet_batch_worker_instance"

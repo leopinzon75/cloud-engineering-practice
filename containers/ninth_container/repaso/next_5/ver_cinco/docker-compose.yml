@@ -1,0 +1,7 @@
+services:
+  batch-processor:
+    build: .
+    container_name: batch_processor_container
+    env_file:
+      - .env
+    restart: "no"  # No reiniciar automáticamente al ser un proceso Batch/Job corto

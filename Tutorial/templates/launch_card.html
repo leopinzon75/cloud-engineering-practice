@@ -1,0 +1,25 @@
+{% macro render_launch(d) %}
+<div class="d-card">
+  {% if d.links.patch.large %}
+  <img
+    src="{{d.links.patch.large}}"
+    alt="{{d.name}}"
+    class="d-image"
+  />
+  {% endif %}
+  <div>
+    <div class="d-title">{{d.name}}</div>
+    {% if d.details %}
+    <p>{{d.details}}</p>
+    {% endif %}
+    <p>{{d.date_utc}}</p>
+    <p>{{d.date_utc|date_only}}</p>
+
+    <div class="d-links">
+      <a href="{{d.links.reddit}}" target="_blank">Reddit </a>
+      <a href="{{d.links.article}}" target="_blank">Article</a>
+      <a href="{{d.links.wikipedia}}" target="_blank">Wikipedia</a>
+    </div>
+  </div>
+</div>
+{% endmacro %}

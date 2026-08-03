@@ -1,0 +1,12 @@
+# Ignorar el notebook específico de la práctica para no exponer datos/claves
+ve_cinco.ipynb
+
+# Archivos de entorno y configuración sensible
+.env
+*.env
+
+# Cache de Python y entornos virtuales
+__pycache__/
+*.pyc
+.venv/
+env/

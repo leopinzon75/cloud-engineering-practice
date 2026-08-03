@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-deployment
+  labels:
+    app: mi-api
+spec:
+  replicas: 3  # <-- ¡Aquí subimos la potencia a 3 copias en paralelo!
+  selector:
+    matchLabels:
+      app: mi-api
+  template:
+    metadata:
+      labels:
+        app: mi-api
+    spec:
+      containers:
+      - name: fastapi-container
+        image: mi-api-fastapi:v1
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8000

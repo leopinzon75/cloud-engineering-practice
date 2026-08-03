@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  localstack_simulador:
+    image: localstack/localstack:2.3.2
+    container_name: localstack_simulador
+    ports:
+      - "4566:4566"
+    environment:
+      - AWS_DEFAULT_REGION=us-east-1
+      - SERVICES=s3,dynamodb
+      - EDGE_BIND_HOST=0.0.0.0
+    volumes:
+      - "localstack_data:/var/lib/localstack"
+    networks:
+      - fase5_network
+
+  local_cloud_scheduler:
+    image: alpine:latest
+    container_name: local_cloud_scheduler
+    command: >
+      sh -c "while true; do 
+        echo '⏰ [Scheduler] Triggering Scheduled Batch Pipeline (Fase 5 Master Run)...';
+        sleep 60;
+      done"
+    networks:
+      - fase5_network
+
+  fleet_batch_worker_instance:
+    build: .
+    container_name: fleet_batch_worker_instance
+    environment:
+      - SIMULACION=False
+      - AWS_ENDPOINT_URL=http://localstack_simulador:4566
+      - S3_BUCKET_NAME=fase5-storage-bucket
+      - AWS_INPUT_KEY=raw_telemetry.csv
+      - DYNAMODB_LOCK_TABLE=fase5-execution-locks
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - localstack_simulador
+    networks:
+      - fase5_network
+
+volumes:
+  localstack_data:
+
+networks:
+  fase5_network:
+    driver: bridge
