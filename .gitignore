@@ -1,14 +1,22 @@
-# Gitignore principal
-.venv/
-env/
+# Ignorar todos los cuadernos borrador de Jupyter en cualquier subcarpeta
+*.ipynb
+**/*.ipynb
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# Ignorar binarios y estados de Terraform
+.terraform/
+**/.terraform/
+*.tfstate
+*.tfstate.backup
+
+# Entornos virtuales y caché de Python
 __pycache__/
+**/__pycache__/
 *.pyc
 .pytest_cache/
-*.log
-*.sqlite3
 
-# Notebooks con datos sensibles
-**/ve_cinco.ipynb
-**/*.ipynb_checkpoints/
+# Carpetas locales de datos
+fleet_data/
+data/
 .env
-*.env
