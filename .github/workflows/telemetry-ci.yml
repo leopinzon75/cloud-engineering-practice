@@ -35,7 +35,6 @@ jobs:
       run: |
         pytest test_app.py
 
-    # Los siguientes pasos SOLO se ejecutan si el evento es un PUSH (evita fallos en Pull Requests)
     - name: Iniciar sesión en Docker Hub
       if: github.event_name == 'push'
       uses: docker/login-action@v3
@@ -62,3 +61,15 @@ jobs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+
+    # ==========================================
+    # 🛡️ CAPA DEVSECOPS: Escaneo de Seguridad con Trivy
+    # ==========================================
+    - name: Escanear imagen de Docker en busca de vulnerabilidades (Trivy)
+      if: github.event_name == 'push'
+      uses: aquasecurity/trivy-action@0.28.0
+      with:
+        image-ref: 'leopinzon75/fleet-telemetry-engine:latest'
+        format: 'table'
+        exit-code: '0'      # '0' para reportar advertencias en los logs sin romper el pipeline
+        severity: 'CRITICAL,HIGH'
