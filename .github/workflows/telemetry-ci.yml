@@ -5,12 +5,12 @@ on:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
+    types: [opened, synchronize]
 
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
     
-    # Especificamos que el directorio de trabajo predeterminado sea la subcarpeta del proyecto
     defaults:
       run:
         working-directory: containers/ninth_container/repaso/next_7/vers_uno
@@ -35,8 +35,9 @@ jobs:
       run: |
         pytest test_app.py
 
+    # Los siguientes pasos SOLO se ejecutan si el evento es un PUSH (evita fallos en Pull Requests)
     - name: Iniciar sesión en Docker Hub
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      if: github.event_name == 'push'
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
@@ -44,7 +45,7 @@ jobs:
 
     - name: Configurar Metadatos y Etiquetado Dinámico
       id: meta
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      if: github.event_name == 'push'
       uses: docker/metadata-action@v5
       with:
         images: leopinzon75/fleet-telemetry-engine
@@ -53,10 +54,9 @@ jobs:
           type=sha,format=short
 
     - name: Compilar y Publicar Imagen en Docker Hub
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      if: github.event_name == 'push'
       uses: docker/build-push-action@v5
       with:
-        # Apuntamos el contexto de construcción a la subcarpeta específica
         context: containers/ninth_container/repaso/next_7/vers_uno
         file: containers/ninth_container/repaso/next_7/vers_uno/Dockerfile
         push: true
