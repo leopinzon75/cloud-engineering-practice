@@ -3,9 +3,6 @@ name: Fleet Multi-Cloud Simulator CI/CD Pipeline
 on:
   push:
     branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
-    types: [opened, synchronize]
 
 jobs:
   test-and-build:
@@ -57,28 +54,23 @@ jobs:
         severity: 'CRITICAL,HIGH'
 
     - name: Iniciar sesión en Docker Hub
-      if: github.event_name == 'push'
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-    - name: Configurar Metadatos y Etiquetado Dinámico
+    - name: Configurar Metadatos
       id: meta
-      if: github.event_name == 'push'
       uses: docker/metadata-action@v5
       with:
         images: leopinzon75/fleet-multicloud-simulator
-        tags: |
-          type=raw,value=latest
-          type=sha,format=short
 
     - name: Publicar Imagen Verificada en Docker Hub
-      if: github.event_name == 'push'
       uses: docker/build-push-action@v5
       with:
         context: containers/ninth_container/repaso/next_8/vers_uno
         file: containers/ninth_container/repaso/next_8/vers_uno/Dockerfile
         push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        tags: |
+          leopinzon75/fleet-multicloud-simulator:latest
+          leopinzon75/fleet-multicloud-simulator:${{ github.sha }}
