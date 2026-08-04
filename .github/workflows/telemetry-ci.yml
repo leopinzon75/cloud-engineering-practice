@@ -2,7 +2,9 @@ name: Fleet Multi-Cloud Simulator CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches:
+      - main
+      - master
 
 jobs:
   test-and-build:
@@ -35,7 +37,7 @@ jobs:
     - name: Configurar Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Compilar Imagen para Escaneo Local (Sin Push)
+    - name: Compilar Imagen para Escaneo Local
       uses: docker/build-push-action@v5
       with:
         context: containers/ninth_container/repaso/next_8/vers_uno
@@ -59,13 +61,7 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-    - name: Configurar Metadatos
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: leopinzon75/fleet-multicloud-simulator
-
-    - name: Publicar Imagen Verificada en Docker Hub
+    - name: Publicar Imagen en Docker Hub
       uses: docker/build-push-action@v5
       with:
         context: containers/ninth_container/repaso/next_8/vers_uno
