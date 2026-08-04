@@ -1,0 +1,64 @@
+name: Fleet Telemetry Engine CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    
+    # Especificamos que el directorio de trabajo predeterminado sea la subcarpeta del proyecto
+    defaults:
+      run:
+        working-directory: containers/ninth_container/repaso/next_7/vers_uno
+
+    steps:
+    - name: Checkout del código
+      uses: actions/checkout@v4
+
+    - name: Configurar Python 3.11 con Caché de Pip
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+        cache: 'pip'
+        cache-dependency-path: containers/ninth_container/repaso/next_7/vers_uno/requirements.txt
+
+    - name: Instalar dependencias
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Ejecutar Pruebas Unitarias con Pytest
+      run: |
+        pytest test_app.py
+
+    - name: Iniciar sesión en Docker Hub
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+    - name: Configurar Metadatos y Etiquetado Dinámico
+      id: meta
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      uses: docker/metadata-action@v5
+      with:
+        images: leopinzon75/fleet-telemetry-engine
+        tags: |
+          type=raw,value=latest
+          type=sha,format=short
+
+    - name: Compilar y Publicar Imagen en Docker Hub
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      uses: docker/build-push-action@v5
+      with:
+        # Apuntamos el contexto de construcción a la subcarpeta específica
+        context: containers/ninth_container/repaso/next_7/vers_uno
+        file: containers/ninth_container/repaso/next_7/vers_uno/Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
