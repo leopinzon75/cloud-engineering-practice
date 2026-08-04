@@ -1,4 +1,4 @@
-name: Fleet Telemetry Engine CI/CD Pipeline
+name: Fleet Multi-Cloud Simulator CI/CD Pipeline
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
     
     defaults:
       run:
-        working-directory: containers/ninth_container/repaso/next_7/vers_uno
+        working-directory: containers/ninth_container/repaso/next_8/vers_uno
 
     steps:
     - name: Checkout del código
@@ -24,7 +24,7 @@ jobs:
       with:
         python-version: "3.11"
         cache: 'pip'
-        cache-dependency-path: containers/ninth_container/repaso/next_7/vers_uno/requirements.txt
+        cache-dependency-path: containers/ninth_container/repaso/next_8/vers_uno/requirements.txt
 
     - name: Instalar dependencias
       run: |
@@ -34,6 +34,27 @@ jobs:
     - name: Ejecutar Pruebas Unitarias con Pytest
       run: |
         pytest test_app.py
+
+    - name: Configurar Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Compilar Imagen para Escaneo Local (Sin Push)
+      uses: docker/build-push-action@v5
+      with:
+        context: containers/ninth_container/repaso/next_8/vers_uno
+        file: containers/ninth_container/repaso/next_8/vers_uno/Dockerfile
+        load: true
+        tags: leopinzon75/fleet-multicloud-simulator:scan-target
+
+    - name: DevSecOps — Escaneo de Vulnerabilidades con Trivy
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'leopinzon75/fleet-multicloud-simulator:scan-target'
+        format: 'table'
+        exit-code: '0'
+        ignore-unfixed: true
+        vuln-type: 'os,library'
+        severity: 'CRITICAL,HIGH'
 
     - name: Iniciar sesión en Docker Hub
       if: github.event_name == 'push'
@@ -47,29 +68,17 @@ jobs:
       if: github.event_name == 'push'
       uses: docker/metadata-action@v5
       with:
-        images: leopinzon75/fleet-telemetry-engine
+        images: leopinzon75/fleet-multicloud-simulator
         tags: |
           type=raw,value=latest
           type=sha,format=short
 
-    - name: Compilar y Publicar Imagen en Docker Hub
+    - name: Publicar Imagen Verificada en Docker Hub
       if: github.event_name == 'push'
       uses: docker/build-push-action@v5
       with:
-        context: containers/ninth_container/repaso/next_7/vers_uno
-        file: containers/ninth_container/repaso/next_7/vers_uno/Dockerfile
+        context: containers/ninth_container/repaso/next_8/vers_uno
+        file: containers/ninth_container/repaso/next_8/vers_uno/Dockerfile
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-
-    # ==========================================
-    # 🛡️ CAPA DEVSECOPS: Escaneo de Seguridad con Trivy
-    # ==========================================
-    - name: Escanear imagen de Docker en busca de vulnerabilidades (Trivy)
-      if: github.event_name == 'push'
-      uses: aquasecurity/trivy-action@0.28.0
-      with:
-        image-ref: 'leopinzon75/fleet-telemetry-engine:latest'
-        format: 'table'
-        exit-code: '0'      # '0' para reportar advertencias en los logs sin romper el pipeline
-        severity: 'CRITICAL,HIGH'
