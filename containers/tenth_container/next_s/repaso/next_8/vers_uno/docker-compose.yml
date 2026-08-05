@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  minio:
+    image: minio/minio
+    container_name: fleet_minio
+    ports:
+      - "9010:9000"
+      - "9011:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: fleet_azurite
+    ports:
+      - "10000:10000"
+    command: azurite-blob --blobHost 0.0.0.0 --skipApiVersionCheck
+
+  fleet-simulator:
+    build: .
+    image: leopinzon75/fleet-multicloud-simulator:latest
+    container_name: fleet_simulator_app
+    depends_on:
+      - minio
+      - azurite
+    environment:
+      - MINIO_ENDPOINT_URL=http://minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - S3_BUCKET=fleet-raw-data
+      - AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;
+      - AZURE_CONTAINER=fleet-clean-alerts
+      - SIMULATION_INTERVAL=10

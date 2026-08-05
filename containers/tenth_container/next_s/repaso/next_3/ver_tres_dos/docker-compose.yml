@@ -4,9 +4,10 @@ services:
   minio:
     image: minio/minio:latest
     container_name: minio-s3-vault
+    # ... otras configuraciones ...
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "9000:9000"   # Puerto API S3
+      - "9005:9001"   # Consola Web (Cambiado: Host 9005 -> Contenedor 9001)
     environment:
       MINIO_ROOT_USER: minio_admin
       MINIO_ROOT_PASSWORD: minio_password

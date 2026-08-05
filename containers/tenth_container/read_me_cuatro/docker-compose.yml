@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # Servidor de almacenamiento en la nube local (MinIO)
+  minio-service:
+    image: minio/minio:RELEASE.2023-09-04T19-57-37Z
+    container_name: minio-service
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minio_admin
+      MINIO_ROOT_PASSWORD: minio_password
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - diagnostic-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Aplicación de Diagnóstico Web (Flask)
+  web-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: diagnostic-app
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    volumes:
+      - ./output:/app/output
+    depends_on:
+      minio-service:
+        condition: service_healthy
+    networks:
+      - diagnostic-net
+
+volumes:
+  minio_data:
+
+networks:
+  diagnostic-net:
+    driver: bridge
