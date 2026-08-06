@@ -3,8 +3,7 @@ name: Multi-Cloud Telemetry CI/CD & Docker Hub Deployment
 on:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+  workflow_dispatch:
 
 jobs:
   build-and-push:
@@ -16,14 +15,14 @@ jobs:
       - name: Configurar Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
       - name: Instalar dependencias y validar sintaxis
         run: |
-          pip install -r containers/tenth_container/read_me_ocho/requirements.txt
-          python -m py_compile containers/tenth_container/read_me_ocho/app.py
+          pip install -r containers/tenth_container/read_me_nine/requirements.txt
+          python -m py_compile containers/tenth_container/read_me_nine/app.py
 
-      - name: Iniciar sesión en Docker Hub
+      - name: Iniciar sesion en Docker Hub
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
@@ -36,9 +35,10 @@ jobs:
       - name: Compilar y publicar imagen en Docker Hub
         uses: docker/build-push-action@v5
         with:
-          context: ./containers/tenth_container/read_me_ocho
-          file: ./containers/tenth_container/read_me_ocho/Dockerfile
+          context: ./containers/tenth_container/read_me_nine
+          file: ./containers/tenth_container/read_me_nine/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/multicloud-telemetry-processor:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/multicloud-telemetry-processor:v9
             ${{ secrets.DOCKERHUB_USERNAME }}/multicloud-telemetry-processor:${{ github.sha }}
