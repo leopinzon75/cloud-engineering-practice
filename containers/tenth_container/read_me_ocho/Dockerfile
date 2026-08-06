@@ -1,13 +1,12 @@
-FROM python:3.11-slim
+FROM python:3.10-slim
 
 WORKDIR /app
 
-# Copiamos el archivo de dependencias e instalamos
+# Actualizamos pip e instalamos dependencias usando binarios precompilados
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --prefer-binary -r requirements.txt
 
-# Copiamos el código fuente de la aplicación
+# Copiamos el archivo de la aplicación
 COPY app.py .
 
-# Comando por defecto al levantar el contenedor
 CMD ["python", "app.py"]
