@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: telemetria-job-batch
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      name: telemetria-job-pod
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: telemetria-worker
+        image: leopinzon75/telemetria-service:latest
+        imagePullPolicy: Always
+        env:
+        - name: SERVICE_NAME
+          value: "Job-Batch-Telemetria"
+        - name: MAX_RETRIES
+          value: "4"
+        - name: FAIL_FAST
+          value: "True"
+        - name: PYTHONUNBUFFERED
+          value: "1"

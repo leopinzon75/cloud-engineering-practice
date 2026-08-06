@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: telemetria-pod-test
+  labels:
+    app: telemetria
+spec:
+  restartPolicy: OnFailure
+  containers:
+  - name: telemetria-container
+    image: leopinzon75/telemetria-service:latest
+    imagePullPolicy: Always
+    env:
+    - name: SERVICE_NAME
+      value: "Pod-K8s-Telemetria"
+    - name: MAX_RETRIES
+      value: "3"
+    - name: FAIL_FAST
+      value: "True"
+    - name: PYTHONUNBUFFERED
+      value: "1"
