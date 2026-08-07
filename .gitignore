@@ -1,4 +1,4 @@
-# Ignorar todos los cuadernos borrador de Jupyter en cualquier subcarpeta
+# Ignorar todos los cuadernos Jupyter
 *.ipynb
 **/*.ipynb
 .ipynb_checkpoints/
@@ -16,7 +16,7 @@ __pycache__/
 *.pyc
 .pytest_cache/
 
-# Carpetas locales de datos
+# Carpetas locales de datos y credenciales
 fleet_data/
 data/
 .env

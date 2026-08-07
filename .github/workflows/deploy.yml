@@ -19,8 +19,8 @@ jobs:
 
       - name: Instalar dependencias y validar sintaxis
         run: |
-          pip install -r containers/tenth_container/read_me_nine/requirements.txt
-          python -m py_compile containers/tenth_container/read_me_nine/app.py
+          pip install -r containers/tenth_container/read_m_ten/requirements.txt
+          python -m py_compile containers/tenth_container/read_m_ten/app.py
 
       - name: Iniciar sesion en Docker Hub
         if: github.event_name != 'pull_request'
@@ -35,10 +35,10 @@ jobs:
       - name: Compilar y publicar imagen en Docker Hub
         uses: docker/build-push-action@v5
         with:
-          context: ./containers/tenth_container/read_me_nine
-          file: ./containers/tenth_container/read_me_nine/Dockerfile
+          context: ./containers/tenth_container/read_m_ten
+          file: ./containers/tenth_container/read_m_ten/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/multicloud-telemetry-processor:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/multicloud-telemetry-processor:v9
+            ${{ secrets.DOCKERHUB_USERNAME }}/multicloud-telemetry-processor:v10
             ${{ secrets.DOCKERHUB_USERNAME }}/multicloud-telemetry-processor:${{ github.sha }}
