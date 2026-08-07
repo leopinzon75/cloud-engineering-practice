@@ -1,4 +1,4 @@
-name: Multi-Cloud Telemetry CI/CD & Docker Hub Deployment
+name: Multi-Cloud CI/CD - Batch Processor & OpenResty Rate Limiter
 
 on:
   push:
@@ -6,7 +6,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-push:
+  # -------------------------------------------------------------
+  # JOB 1: Telemetry Batch Processor (v10)
+  # -------------------------------------------------------------
+  build-telemetry-processor:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout del repositorio
@@ -17,12 +20,12 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Instalar dependencias y validar sintaxis
+      - name: Validar sintaxis de Python
         run: |
           pip install -r containers/tenth_container/read_m_ten/requirements.txt
           python -m py_compile containers/tenth_container/read_m_ten/app.py
 
-      - name: Iniciar sesion en Docker Hub
+      - name: Iniciar sesión en Docker Hub
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
@@ -32,7 +35,7 @@ jobs:
       - name: Configurar Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Compilar y publicar imagen en Docker Hub
+      - name: Compilar y publicar Telemetry Processor
         uses: docker/build-push-action@v5
         with:
           context: ./containers/tenth_container/read_m_ten
@@ -41,4 +44,32 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/multicloud-telemetry-processor:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/multicloud-telemetry-processor:v10
-            ${{ secrets.DOCKERHUB_USERNAME }}/multicloud-telemetry-processor:${{ github.sha }}
+
+  # -------------------------------------------------------------
+  # JOB 2: OpenResty Rate Limiter & API Gateway
+  # -------------------------------------------------------------
+  build-rate-limiter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Iniciar sesión en Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Compilar y publicar OpenResty Rate Limiter
+        uses: docker/build-push-action@v5
+        with:
+          context: ./my_agenda/presente/proyecto_2_optimizacion_de_servidor
+          file: ./my_agenda/presente/proyecto_2_optimizacion_de_servidor/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/openresty-rate-limiter:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/openresty-rate-limiter:v1.0
